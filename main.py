@@ -96,6 +96,6 @@ class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
 print(np.around(output, decimals=1))
 print(stepFunction(output))
 
-print("It is a: ", class_names[np.argmax(output)] )
+print("  It is a: ", class_names[np.argmax(output)] )
 
 ''
