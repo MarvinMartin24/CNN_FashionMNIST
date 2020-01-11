@@ -18,7 +18,7 @@ uncomment the function ```build_model()```
 
 ## Data
 ![alt text](model/data_sample.png "Sample")
-* Load for MNIST
+* Load from [MNIST Fashion](http://yann.lecun.com/exdb/mnist/)
 * Data volume : 70 000 (Train 60 000 + Test 10 000)
 * Input shape is 28x28x1 (Gray Scale Image)
 
@@ -35,7 +35,7 @@ uncomment the function ```build_model()```
 
 ## Results
 ```bash
-This image is a image/Tee-shirt
+This image is a image/Pullover
 [0. 0. 1. 0. 0. 0. 0. 0. 0. 0.]
 Predicted item is Pullover
 
