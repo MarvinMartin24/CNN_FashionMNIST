@@ -3,6 +3,7 @@ from keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
 from keras.optimizers import Adadelta, SGD, Adam
 from keras.models import model_from_json
 from keras.datasets import fashion_mnist
+from keras.utils import plot_model
 from keras import backend as K
 
 from tensorflow.python.tools import freeze_graph, optimize_for_inference_lib
@@ -10,6 +11,7 @@ import tensorflow as tf
 
 import matplotlib.pyplot as plt
 import numpy as np
+import glob
 import cv2
 import os
 
@@ -52,50 +54,78 @@ def readImageFromFile(filepath):
     img = img.reshape(28, 28, 1)
     return img
 
-'''
-#Load training data
-(X_train, Y_train), (X_test, Y_test) = loadTraining()
+def plot_history(history):
+    # summarize history for accuracy
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
 
-# Build model
-model = Sequential()
+def readImageFromFile(filepath):
+    img = cv2.imread(filepath, 0)
+    img2 = []
 
-model.add(Conv2D(filters=64, kernel_size=3, strides=1, padding='same', activation='relu', input_shape=[28, 28, 1]))
-model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
-model.add(Dropout(0.2))
+    for i in range(len(img)):
+        img2 += list(img[i])
 
-model.add(Conv2D(filters=32, kernel_size=2, strides=1, padding='same', activation='relu'))
-model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
-model.add(Dropout(0.3))
+    img = np.array(img2)
+    img = img/255.0
+    img = img.reshape(28, 28, 1)
+    return img
 
-model.add(Flatten())
-model.add(Dense(256, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(32, activation='relu'))
-model.add(Dense(10, activation='softmax'))
+def build_model():
+    #Load training data
+    (X_train, Y_train), (X_test, Y_test) = loadTraining()
 
-model.summary()
+    # Build model
+    model = Sequential()
+    model.add(Conv2D(filters=64, kernel_size=3, strides=1, padding='same', activation='relu', input_shape=[28, 28, 1]))
+    model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
+    model.add(Conv2D(filters=128, kernel_size=3, strides=1, padding='same', activation='relu'))
+    model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
+    model.add(Conv2D(filters=256, kernel_size=3, strides=1, padding='same', activation='relu'))
+    model.add(MaxPooling2D(pool_size=2, strides=2, padding='same'))
+    model.add(Flatten())
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(10, activation='softmax'))
 
-# Train model and plot result
-model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=0.001), metrics=['accuracy'])
-model.fit(X_train, Y_train, batch_size=256, epochs=10, validation_data=(X_test, Y_test))
+    # Train model and plot result
+    model.compile(loss='categorical_crossentropy', optimizer=Adadelta(), metrics=['accuracy'])
+    history = model.fit(X_train, Y_train, batch_size=200, epochs=2, validation_data=(X_test, Y_test))
+    plot_history(history)
 
-# Save model
-save_model(model, "model")
+    # Save model
+    save_model(model, "model")
 
-'''
+def use_model(img):
+    #Read model
+    model = read_model("model")
+    input = np.array([readImageFromFile(img)])
+    output = model.predict(input)[0]
+    plot_model(model, to_file='model/model.png')
+    print(stepFunction(output))
 
-#Read model
-model = read_model("model")
-input = np.array([readImageFromFile("image/nikesb3.png")])
-output = model.predict(input)[0]
-
-class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+    class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
                'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
+    print("Predicted item is " +  class_names[np.argmax(output)] + '\n')
 
-print(np.around(output, decimals=1))
-print(stepFunction(output))
+if __name__ == '__main__':
+    #build_model()
 
-print("It is a:", class_names[np.argmax(output)] )
 
-''
+
+    for filename in glob.glob('image/*.png'):
+        print("This image is a " + filename.split('.')[0])
+        use_model(filename)
