@@ -29,21 +29,17 @@ uncomment the function ```build_model()```
 
 ## Hyperparameters
 * loss = categorical_crossentropy
-* optimizer = Adadelta
+* optimizer = Adam
 * batch_size=200
 * epochs = 2
 
 ## Results
 ```bash
-This image is a 2
+This image is a image/Tee-shirt
 [0. 0. 1. 0. 0. 0. 0. 0. 0. 0.]
-Predicted number is 2
+Predicted item is Pullover
 
-This image is a 6
-[0. 0. 0. 0. 0. 0. 1. 0. 0. 0.]
-Predicted number is 6
-
-This image is a 8
-[0. 0. 0. 0. 0. 0. 0. 0. 1. 0.]
-Predicted number is 8
+This image is a image/Sneaker
+[0. 0. 0. 0. 0. 0. 0. 1. 0. 0.]
+Predicted item is Sneaker
 ```
